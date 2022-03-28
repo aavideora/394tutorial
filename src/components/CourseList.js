@@ -2,26 +2,36 @@
 import { hasConflict, terms, days, courseConflict, getCourseTerm, timeConflict } from '../utilities/times.js';
 import Course from './Course';
 
+
+
+const scheduleChanged = (selected, courses) => (
+  selected.some(course => course !== courses[course.id])
+);
+
 const CourseList = ({ courses }) => {
-    const [term, setTerm] = useState('Fall');
-    const [selected, setSelected] = useState([]);
-    const termCourses = Object.values(courses).filter(course => term === getCourseTerm(course));
+  const [term, setTerm] = useState('Fall');
+  const [selected, setSelected] = useState([]);
 
-    return (
-        <>
-            <TermSelector term={term} setTerm={setTerm} />
-            <div className="course-list">
-                {
-                    termCourses.map(course =>
-                        <Course key={course.id} course={course}
-                            selected={selected} setSelected={setSelected}
-                        />)
-                }
-            </div>
-        </>
-    );
+  if (scheduleChanged(selected, courses)) {
+    setSelected([])
+  };
+  
+  const termCourses = Object.values(courses).filter(course => term === getCourseTerm(course));
+  
+  return (
+    <>
+      <TermSelector term={term} setTerm={setTerm} />
+      <div className="course-list">
+      { 
+        termCourses.map(course =>
+          <Course key={ course.id } course={ course }
+            selected={selected} setSelected={ setSelected } 
+          />) 
+      }
+      </div>
+    </>
+  );
 };
-
 
 const TermSelector = ({ term, setTerm }) => (
     <div className="btn-group">
@@ -35,14 +45,8 @@ const TermSelector = ({ term, setTerm }) => (
 
 
 
-const getCourseNumber = course => (
-  course.id.slice(1, 4)
-);
 
 
-const toggle = (x, lst) => (
-    lst.includes(x) ? lst.filter(y => y !== x) : [x, ...lst]
-);
 
 const TermButton = ({ term, setTerm, checked }) => (
     <>
